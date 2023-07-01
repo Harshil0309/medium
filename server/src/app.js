@@ -1,5 +1,6 @@
 const express = require("express");
 const server = express();
+const InitiateMongoServer = require("./config/db");
 const bodyParser = require("body-parser");
 const userRouter = require("./routes/user");
 const postRouter = require("./routes/post");
@@ -9,6 +10,12 @@ server.use(bodyParser());
 server.use("/api/users", userRouter);
 server.use("/api/posts", postRouter);
 
-server.listen(PORT, () => {
-  console.log("Listening to server");
-});
+InitiateMongoServer()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log("Listening to server");
+    });
+  })
+  .catch(() => {
+    console.log("Can't connect to DB!!");
+  });

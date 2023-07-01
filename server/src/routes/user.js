@@ -13,6 +13,5 @@ router.post(
   body("password").isString().isLength({ min: 5, max: 15 }),
   userController.signup
 );
-router.get("/edit", userController.edit);
 
 module.exports = router;
