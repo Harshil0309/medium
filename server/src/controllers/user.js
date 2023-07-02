@@ -1,21 +1,28 @@
-const { validationResult } = require("express-validator");
 
+// 1) COOKIES
+
+
+const { validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
 const login = async (req, res, next) => {
-  const { email, password } = req.body;
-
+  const { email, password: givenPassword } = req.body;
   try {
-    const user = await User.findOne({ email, password }).select("name email");
+    let user = await User.findOne({ email }).select("name email password");
     if (!user) {
-      return res.json({ message: "Invalid credentials" });
+      return res.json({ message: "User not registered" });
     }
-
-    // cookie
-
-    return res
-      .status(201)
-      .json({ message: "User logged in successfully", data: user });
+    const { password: dbPassword } = user;
+    const isPasswordMatch = await bcrypt.compare(givenPassword, dbPassword);
+    if (!isPasswordMatch) {
+      return res.json({ message: "Password Error." });
+    }
+    user.password = null;
+    return res.status(201).json({
+      message: "User logged in successfully",
+      data: user,
+    });
   } catch (error) {
     return res.status(404).json({ message: error.message });
   }
@@ -27,6 +34,7 @@ const signup = async (req, res, next) => {
     return res.status(400).json({ message: "Invalid Inputs" });
   }
   const { name, password, email, profile_url } = req.body;
+
   try {
     const user = await User.findOne({
       email: email,
@@ -36,11 +44,15 @@ const signup = async (req, res, next) => {
       return res.json({ message: "User already exist" });
     }
 
-    // password hashing
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds);
+    // console.log(salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    // console.log(hashedPassword);
 
     const myUser = new User({
       email,
-      password,
+      password: hashedPassword,
       name,
       profile_url,
     });
@@ -60,3 +72,5 @@ module.exports = {
   login,
   signup,
 };
+
+

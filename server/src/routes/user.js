@@ -10,7 +10,7 @@ router.post(
   body("name").notEmpty().isString(),
   body("email").notEmpty().isEmail(),
   body("profile_url").notEmpty().isString(),
-  body("password").isString().isLength({ min: 5, max: 15 }),
+  body("password").isString().isLength({ min: 5 }),
   userController.signup
 );
 

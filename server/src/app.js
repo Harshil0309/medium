@@ -3,12 +3,12 @@ const server = express();
 const InitiateMongoServer = require("./config/db");
 const bodyParser = require("body-parser");
 const userRouter = require("./routes/user");
-const postRouter = require("./routes/post");
+const postRouter = require("./routes/task");
 const PORT = 5000;
 server.use(bodyParser());
 
 server.use("/api/users", userRouter);
-server.use("/api/posts", postRouter);
+server.use("/api/task", postRouter);
 
 InitiateMongoServer()
   .then(() => {
