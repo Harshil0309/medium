@@ -46,10 +46,7 @@ const signup = async (req, res, next) => {
 
     const saltRounds = 10;
     const salt = await bcrypt.genSalt(saltRounds);
-    // console.log(salt);
     const hashedPassword = await bcrypt.hash(password, salt);
-    // console.log(hashedPassword);
-
     const myUser = new User({
       email,
       password: hashedPassword,
