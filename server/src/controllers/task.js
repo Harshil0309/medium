@@ -1,9 +1,38 @@
 const Task = require("../models/Task");
 const TaskTypes = require("../config/TaskType");
 
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  host: "smtp.gmail.com",
+  secure: false,
+  auth: {
+    user: "harshilgupta562@gmail.com",
+    pass: "nvuvccshujibrehn!",
+  },
+});
+
+const sendEmail = async (email, content, priority) => {
+  try {
+    const notification = {
+      from: "harshilgupta562@gmail.com",
+      to: email,
+      subject: "New Task added",
+      text: `
+          Hey new task added to you Todo list here is a detail of it
+          ${content} , it a ${priority} priority task.
+        `,
+    };
+    const info = await transporter.sendMail(notification);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const newPost = async (req, res, next) => {
   try {
-    const { user_id, heading, content, priority } = req.body;
+    const { email, user_id, heading, content, priority } = req.body;
     let taskPriority = null;
     if (priority == TaskTypes.LOW) {
       taskPriority = TaskTypes.LOW;
@@ -21,6 +50,9 @@ const newPost = async (req, res, next) => {
     });
 
     const savedTask = await newTask.save();
+
+    await sendEmail(email, content, priority);
+
     return res.json({
       message: "Task Added Succesfully",
       data: savedTask,
@@ -65,10 +97,8 @@ const getTask = async (req, res, next) => {
 const deleteTask = async (req, res, next) => {
   try {
     const { id } = req.body;
-
     const result = await Task.deleteOne({ _id: id });
     console.log(result);
-
     return res.json({ message: "Task delteted successfully" });
   } catch (error) {
     return res.status(404).json({
@@ -78,3 +108,6 @@ const deleteTask = async (req, res, next) => {
 };
 
 module.exports = { newPost, getAllTasks, getTask, deleteTask };
+
+//
+//

@@ -11,7 +11,6 @@ server.use(bodyParser());
 server.use("/api/users", userRouter);
 server.use("/api/task", taskRouter);
 
-
 InitiateMongoServer()
   .then(() => {
     server.listen(PORT, () => {
